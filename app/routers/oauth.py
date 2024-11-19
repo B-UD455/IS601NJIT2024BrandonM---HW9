@@ -4,7 +4,8 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from datetime import timedelta
 from app.config import ACCESS_TOKEN_EXPIRE_MINUTES  # Custom configuration setting
 from app.schema import Token  # Import the Token model from our application
-from app.utils.common import authenticate_user, create_access_token
+from app.services.auth_service import authenticate_user, create_access_token
+#from app.utils.common import authenticate_user, create_access_token
 
 # Initialize OAuth2PasswordBearer, a class that FastAPI provides to handle security with OAuth2 Password Flow
 # 'tokenUrl' is the endpoint where the client will send the username and password to get the token
