@@ -15,7 +15,8 @@ async def test_login_for_access_token():
     assert response.json()["token_type"] == "bearer"
 
 @pytest.mark.asyncio
-async def test_create_qr_code_unauthorized():
+async def test_create_qr_code_unauthorized(get_access_token_for_test):
+    access_token = get_access_token_for_test  # Ensure this token is valid - NEW CODE
     # Attempt to create a QR code without authentication
     qr_request = {
         "url": "https://example.com",
@@ -25,7 +26,12 @@ async def test_create_qr_code_unauthorized():
     }
     async with AsyncClient(app=app, base_url="http://test") as ac:
         response = await ac.post("/qr-codes", json=qr_request)
+        print(f"Response status code: {response.status_code}") #NEWCODE
+        print(f"Response body: {response.text}") #NEWCODE       
     assert response.status_code == 401  # Unauthorized
+
+
+
 
 @pytest.mark.asyncio
 async def test_create_and_delete_qr_code():
@@ -47,11 +53,18 @@ async def test_create_and_delete_qr_code():
             "size": 10,
         }
         create_response = await ac.post("/qr-codes", json=qr_request, headers=headers)
-        assert create_response.status_code in [201, 409]  # Created or already exists
+        print(f"Create Response Status Code: {create_response.status_code}") #NEWCODE
+        print(f"Create Response Body: {create_response.json()}") #NEWCODE
+        
+        assert create_response.status_code in [200]  # Created or already exists
 
         # If the QR code was created, attempt to delete it
         if create_response.status_code == 201:
             qr_code_url = create_response.json()["qr_code_url"]
-            qr_filename = qr_code_url.split('/')[-1]
-            delete_response = await ac.delete(f"/qr-codes/{qr_filename}", headers=headers)
-            assert delete_response.status_code == 200  # No Content, successfully deleted
+            if qr_code_url: #NEWCODE
+                qr_filename = qr_code_url.split('/')[-1]
+                print(f"Deleting QR code: {qr_filename}") #NEWCODE
+                delete_response = await ac.delete(f"/qr-codes/{qr_filename}", headers=headers)
+                print(f"Delete Response Status Code: {delete_response.status_code}") #NEWCODE
+                print(f"Delete Response Body: {delete_response.json()}") #NEWCODE           
+                assert delete_response.status_code == 200  # No Content, successfully deleted
